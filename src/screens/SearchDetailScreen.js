@@ -1,34 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-import yelp from '../api/yelp';
+import useDetailResult from '../hooks/useDetailResult';
 
 const SearchDetailScreen = ({ navigation }) => {
-    const [result, setResult] = useState(null);
-    const [errMsg, setErrMsg] = useState('');
     const id = navigation.getParam('id');
-    console.log(id);
-
-    const getResult = async (id) => {
-        try {
-            const response = await yelp.get(`/${id}`);
-            console.log(response.data);
-            setResult(response.data);
-        } catch (e) {
-            setErrMsg(e.message);
-            console.log(e);
-        }
-    };
-
-    useEffect(() => { getResult(id) }, []);
+    const [result, errMsg] = useDetailResult(id);
 
     if (!result) {
-        return <Text>Error</Text>
+        return <Text>Error: {errMsg}</Text>
     }
 
     return (
         <View>
-            <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{result.name}</Text>
+            <Text style={styles.name}>{result.name}</Text>
             <FlatList
                 data={result.photos}
                 keyExtractor={(photo) => photo}
@@ -41,6 +26,10 @@ const SearchDetailScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+    name: {
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
     image: {
         width: 300,
         height: 200
